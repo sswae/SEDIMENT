@@ -482,11 +482,91 @@
       :root { --pad-x: 48px; }
       .contents-title { font-size: 46px; }
     }
+
+/* ════════════════════════════
+   FULL SCREEN WAVE LOADING
+════════════════════════════ */
+#loading-screen {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: #576151; /* 검은 배경 */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  transition: opacity 0.6s ease-out, visibility 0.6s;
+  overflow: hidden; /* 파도가 화면 밖으로 나가지 않게 */
+}
+
+.wave-container {
+  position: absolute; /* 배경처럼 깔기 위해 */
+  bottom: 0; left: 0;
+  width: 100%;
+  height: 100%; /* 전체를 채우되 파도 높이로 조절 */
+  overflow: hidden;
+  z-index: -1;
+}
+
+.wave {
+  position: absolute;
+  bottom: -150%; /* 화면 하단에 위치 */
+  left: -50%;
+  width: 200vw; 
+  height: 200vw;
+  background: var(--bg);
+  opacity: 0.4;
+  border-radius: 40%;
+  /* top을 50%로 설정하면 화면 절반 정도까지 차오릅니다 */
+  top: 55%; 
+  animation: drift 7s infinite linear;
+}
+
+.wave:nth-child(2) {
+  top: 58%; /* 약간 낮게 배치하여 레이어 생성 */
+  animation: drift 9s infinite linear;
+  opacity: 0.2;
+}
+
+.wave:nth-child(3) {
+  top: 52%; /* 약간 높게 배치 */
+  animation: drift 11s infinite linear;
+  opacity: 0.1;
+  background: white;
+}
+
+@keyframes drift {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  /* 파도 위에서도 잘 보이도록 z-index 부여 */
+  position: relative;
+  z-index: 10;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 0.2em;
+  color: #D2DDCB; /* 어두운 배경/파도 위에서 잘 보이게 흰색 계열 */
+}
+
+#loading-screen.fade-out {
+  opacity: 0;
+  visibility: hidden;
+}
   </style>
 </head>
 <body>
 <div id="app">
-
+<div id="loading-screen">
+  <div class="wave-container">
+    <div class="wave"></div>
+    <div class="wave"></div>
+    <div class="wave"></div>
+  </div>
+  <p class="loading-text en">SEDIMENTING...</p>
+</div>
   <!-- ══ INDEX ══ -->
   <div id="screen-index">
     <nav class="top-nav">
@@ -970,6 +1050,16 @@
   }
 
   renderIndex();
+
+  Promise.all([renderIndex()]).then(() => {
+  const loader = document.getElementById('loading-screen');
+  if (loader) {
+    // 부드러운 전환을 위해 약간의 지연(500ms) 후 제거
+    setTimeout(() => {
+      loader.classList.add('fade-out');
+    }, 500);
+  }
+});
 </script>
 </body>
 </html>
