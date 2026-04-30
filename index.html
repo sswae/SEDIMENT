@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>SEDIMENT</title>
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
+    <link rel="icon" href="favicon.png" type="favicon/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Noto+Serif+KR:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg:      #D2DDCB;
+      --ink:     #576151;
+      --ink-60:  rgba(87,97,81,.6);
+      --ink-30:  rgba(87,97,81,.3);
+      --ink-15:  rgba(87,97,81,.15);
+      --font-en: 'STIX Two Text', serif;
+      --font-ko: 'Noto Serif KR', serif;
+      --max-w:   600px;
+      --pad-x:   28px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font-ko);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    .en { font-family: var(--font-en); }
+
+    #app {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* ════════════════════════════
+       INDEX
+    ════════════════════════════ */
+    #screen-index {
+      display: flex;
+      flex-direction: column;
+      min-height: 100dvh;
+      padding: 0 var(--pad-x);
+    }
+    .top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding-top: 32px;
+    }
+    .top-nav-links { display: flex; flex-direction: column; gap: 2px; }
+    .top-nav-links a {
+      font-family: var(--font-en);
+      font-size: 10px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--ink);
+      text-decoration: none;
+      line-height: 1.75;
+      transition: opacity .15s;
+    }
+    .top-nav-links a:hover { opacity: .5; }
+    .btn-add {
+      font-family: var(--font-en);
+      font-size: 24px;
+      color: var(--ink);
+      background: none;
+      border: none;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0;
+      transition: opacity .15s;
+    }
+    .btn-add:hover { opacity: .5; }
+
+    .contents-header { text-align: center; padding: 44px 0 22px; }
+    .contents-label {
+      font-family: var(--font-en);
+      font-size: 10px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--ink-60);
+      display: block;
+      margin-bottom: 16px;
+    }
+    .contents-title {
+      font-family: var(--font-en);
+      font-size: 40px;
+      font-style: italic;
+      font-weight: 500;
+      letter-spacing: .04em;
+    }
+
+    .chapter-divider {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0 7px;
+      border-top: 1px solid var(--ink);
+    }
+    .chapter-divider span {
+      font-family: var(--font-en);
+      font-size: 9px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--ink-60);
+    }
+
+    .chapter-list { flex: 1; display: flex; flex-direction: column; }
+    .board-block { padding: 20px 0 26px; border-bottom: 1px solid var(--ink-30); }
+    .board-block:last-child { border-bottom: none; }
+
+    .board-title-row { display: flex; align-items: baseline; margin-bottom: 14px; }
+    .board-roman {
+      font-family: var(--font-en);
+      font-size: 11px;
+      color: var(--ink-60);
+      flex-shrink: 0;
+      width: 28px;
+    }
+    .board-name {
+      font-family: var(--font-en);
+      font-size: 14.5px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+    .board-dots {
+      flex: 1;
+      border-bottom: 1px dotted var(--ink-60);
+      margin: 0 8px 3px;
+      min-width: 16px;
+    }
+    /* PAGE 자리 = 게시글 수 */
+    .board-count {
+      font-family: var(--font-en);
+      font-size: 13px;
+      font-style: italic;
+      color: var(--ink-60);
+      flex-shrink: 0;
+      min-width: 16px;
+      text-align: right;
+    }
+
+    /* 에피소드 목록: 6줄 고정 + 항상 스크롤 가능 */
+    .episode-list {
+      padding-left: 28px;
+      height: 132px;           /* ~6줄 고정 */
+      overflow-y: scroll;      /* auto 대신 scroll로 항상 스크롤바 */
+      scrollbar-width: thin;
+      scrollbar-color: var(--ink-30) transparent;
+    }
+    .episode-list::-webkit-scrollbar { width: 4px; }
+    .episode-list::-webkit-scrollbar-track { background: transparent; }
+    .episode-list::-webkit-scrollbar-thumb { background: var(--ink-30); border-radius: 2px; }
+
+    .episode-item {
+      font-family: var(--font-ko);
+      font-size: 11.5px;
+      color: var(--ink);
+      line-height: 1.95;
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: opacity .15s;
+    }
+    .episode-item .ep-label {
+      font-family: var(--font-en);
+      font-size: 10px;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--ink-60);
+      margin-right: 5px;
+    }
+    .episode-item:hover { opacity: .5; }
+
+    .state-msg {
+      font-family: var(--font-en);
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--ink-30);
+      padding: 10px 0;
+    }
+
+    /* ════════════════════════════
+       VIEWER
+    ════════════════════════════ */
+    #screen-viewer { display: none; flex-direction: column; min-height: 100dvh; }
+
+    .viewer-topbar { padding: 28px var(--pad-x) 0; }
+    .viewer-breadcrumb {
+      font-family: var(--font-en);
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--ink-60);
+      margin-bottom: 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .viewer-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .viewer-actions button {
+      font-family: var(--font-en);
+      font-size: 10px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--ink);
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+    .viewer-actions button:hover { opacity: .5; }
+
+    /* 타이포 컨트롤 */
+    .viewer-settings {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      padding: 0 var(--pad-x) 12px;
+      border-bottom: 1px solid var(--ink-15);
+    }
+    .setting-group { display: flex; align-items: center; gap: 5px; }
+    .setting-label {
+      font-family: var(--font-en);
+      font-size: 9px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--ink-60);
+    }
+    .setting-btn {
+      background: none;
+      border: 1px solid var(--ink-30);
+      color: var(--ink);
+      font-family: var(--font-en);
+      font-size: 10px;
+      padding: 2px 7px;
+      cursor: pointer;
+      line-height: 1.6;
+      transition: border-color .15s;
+    }
+    .setting-btn.active, .setting-btn:hover { border-color: var(--ink); }
+
+    /* 본문 영역 */
+    .viewer-body {
+      flex: 1;
+      padding: 28px var(--pad-x) 80px;
+      overflow-y: auto;
+    }
+
+    /* ── PLAY 버튼: 본문 상단에 위치 ── */
+    .play-inline-wrap {
+      display: flex;
+      justify-content: center;
+      margin-top: 50px;
+      margin-bottom: 50px;
+    }
+    #btn-play {
+      font-family: var(--font-en);
+      font-size: 12px;
+      font-style: italic;
+      font-weight: bold;
+      letter-spacing: .18em;
+      color: var(--ink);
+      background: transparent;
+      border: 1px solid var(--ink);
+      padding: 8px 15px;
+      cursor: pointer;
+      transition: background .2s, color .2s;
+    }
+    #btn-play:hover, #btn-play.playing { background: var(--ink); color: var(--bg); }
+
+    /* 본문 텍스트 */
+    .article-content {
+      font-family: var(--font-ko);
+      font-size: 15px;
+      line-height: 2;
+      letter-spacing: 0em;
+      color: var(--ink);
+      /* 좌우 justify, 마지막 줄은 left (짧은 문장 자동 왼쪽 정렬) */
+      text-align: justify;
+      text-align-last: left;
+      word-break: keep-all;
+    }
+    .article-content p {
+      margin-bottom: 1.4em;
+      /* 각 단락도 동일 적용 */
+      text-align: justify;
+      text-align-last: left;
+    }
+    /* 빈 줄(빈 p) — 단락 간격으로 활용 */
+    .article-content p:empty { margin-bottom: 0; height: 1.4em; }
+
+    /* drop cap */
+    .article-content p.drop-cap::first-letter {
+      font-size: 3.8em;
+      font-weight: 600;
+      float: left;
+      line-height: .86;
+      margin-right: 5px;
+      margin-top: 5px;
+    }
+
+    /* 타이포 변형 */
+    .article-content[data-size="sm"] { font-size: 13.5px; }
+    .article-content[data-size="md"] { font-size: 15px; }
+    .article-content[data-size="lg"] { font-size: 17px; }
+    .article-content[data-lh="compact"] { line-height: 1.7; }
+    .article-content[data-lh="normal"]  { line-height: 2;   }
+    .article-content[data-lh="loose"]   { line-height: 2.5; }
+    .article-content[data-ls="tight"]  { letter-spacing: -.01em; }
+    .article-content[data-ls="normal"] { letter-spacing: 0em;    }
+    .article-content[data-ls="wide"]   { letter-spacing: .06em;  }
+
+    /* ════════════════════════════
+       WRITE
+    ════════════════════════════ */
+    #screen-write {
+      display: none;
+      flex-direction: column;
+      height: 100dvh;          /* 화면 전체 높이 고정 */
+      padding: 0 var(--pad-x);
+    }
+    .write-top { padding: 28px 0 16px; flex-shrink: 0; }
+    .write-top button {
+      font-family: var(--font-en);
+      font-size: 10px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--ink);
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+    .write-top button:hover { opacity: .5; }
+
+    .board-select-wrap {
+      position: relative;
+      border-bottom: 1px solid var(--ink);
+      margin-bottom: 18px;
+      flex-shrink: 0;
+    }
+    .board-select {
+      width: 100%;
+      appearance: none;
+      background: transparent;
+      border: none;
+      font-family: var(--font-ko);
+      font-size: 12px;
+      color: var(--ink-60);
+      padding: 10px 36px 10px 0;
+      cursor: pointer;
+      outline: none;
+    }
+    .board-select option { color: var(--ink); background: var(--bg); }
+    .board-select-arrow {
+      position: absolute;
+      right: 0; top: 50%;
+      transform: translateY(-50%);
+      width: 26px; height: 26px;
+      border: 1px solid var(--ink);
+      display: flex; align-items: center; justify-content: center;
+      pointer-events: none;
+    }
+    .board-select-arrow svg { width: 10px; height: 6px; fill: var(--ink); }
+
+    .write-epnum-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      flex-shrink: 0;
+    }
+    .write-epnum-label {
+      font-family: var(--font-en);
+      font-size: 10px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--ink-60);
+    }
+    .write-epnum-input {
+      font-family: var(--font-en);
+      font-size: 13px;
+      color: var(--ink);
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--ink-30);
+      outline: none;
+      width: 60px;
+      padding: 4px 0;
+      text-align: center;
+    }
+
+    .title-input {
+      font-family: var(--font-ko);
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--ink);
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--ink-30);
+      outline: none;
+      width: 100%;
+      padding: 8px 0 12px;
+      margin-bottom: 16px;
+      flex-shrink: 0;
+    }
+    .title-input::placeholder { color: var(--ink-30); }
+
+    /* 글쓰기 영역 — 남은 공간 전부 차지 */
+    .body-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--ink-30);
+      padding: 14px 16px;
+      margin-bottom: 0;
+      min-height: 0;
+    }
+    .body-textarea {
+      flex: 1;
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-family: var(--font-ko);
+      font-size: 14px;
+      line-height: 2;
+      color: var(--ink);
+      resize: none;
+    }
+    .body-textarea::placeholder { color: var(--ink-30); }
+
+    /* 하단 힌트 + 저장 버튼 */
+    .write-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0 20px;
+      flex-shrink: 0;
+    }
+    .write-hint {
+      font-family: var(--font-en);
+      font-size: 9px;
+      letter-spacing: .07em;
+      color: var(--ink-60);
+    }
+    .btn-save {
+      font-family: var(--font-en);
+      font-size: 11px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--bg);
+      background: var(--ink);
+      border: none;
+      padding: 11px 30px;
+      cursor: pointer;
+      transition: opacity .2s;
+    }
+    .btn-save:hover { opacity: .75; }
+    .btn-save:disabled { opacity: .4; cursor: not-allowed; }
+
+    @media (min-width: 600px) {
+      :root { --pad-x: 48px; }
+      .contents-title { font-size: 46px; }
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ══ INDEX ══ -->
+  <div id="screen-index">
+    <nav class="top-nav">
+      <div class="top-nav-links">
+        <a href="https://docs.google.com/document/d/1U_QFTRwyx-KA8zYOakjqiPAi7Mp_gi1r6cm946Fk-wo/edit?usp=sharing"
+           target="_blank" rel="noopener">DOCS</a>
+        <a href="https://www.perplexity.ai/" target="_blank" rel="noopener">GHOSTWRITER</a>
+        <a href="#" onclick="downloadMarkdown(); return false;">MARKDOWN</a>
+      </div>
+      <button class="btn-add" onclick="openWrite()">+</button>
+    </nav>
+
+    <div class="contents-header">
+      <span class="contents-label en">Contents</span>
+      <div class="contents-title en">SEDIMENT</div>
+    </div>
+
+    <div class="chapter-divider">
+      <span class="en">Chapter</span>
+      <span class="en">Page</span>
+    </div>
+
+    <div class="chapter-list" id="board-list">
+      <div class="state-msg">Loading…</div>
+    </div>
+  </div>
+
+  <!-- ══ VIEWER ══ -->
+  <div id="screen-viewer">
+    <div class="viewer-topbar">
+      <div class="viewer-breadcrumb en" id="viewer-breadcrumb">—</div>
+      <div class="viewer-actions">
+        <button onclick="showScreen('index')">BACK</button>
+        <button onclick="editCurrent()">EDIT</button>
+      </div>
+    </div>
+
+    <!-- 타이포 컨트롤 -->
+    <div class="viewer-settings">
+      <div class="setting-group">
+        <span class="setting-label en">Size</span>
+        <button class="setting-btn en" data-target="size" data-val="sm" onclick="setSetting(this)">S</button>
+        <button class="setting-btn en active" data-target="size" data-val="md" onclick="setSetting(this)">M</button>
+        <button class="setting-btn en" data-target="size" data-val="lg" onclick="setSetting(this)">L</button>
+      </div>
+      <div class="setting-group">
+        <span class="setting-label en">Line</span>
+        <button class="setting-btn en" data-target="lh" data-val="compact" onclick="setSetting(this)">↕</button>
+        <button class="setting-btn en active" data-target="lh" data-val="normal" onclick="setSetting(this)">↕↕</button>
+        <button class="setting-btn en" data-target="lh" data-val="loose" onclick="setSetting(this)">↕↕↕</button>
+      </div>
+      <div class="setting-group">
+        <span class="setting-label en">Kern</span>
+        <button class="setting-btn en" data-target="ls" data-val="tight" onclick="setSetting(this)">←→</button>
+        <button class="setting-btn en active" data-target="ls" data-val="normal" onclick="setSetting(this)">← →</button>
+        <button class="setting-btn en" data-target="ls" data-val="wide" onclick="setSetting(this)">←  →</button>
+      </div>
+    </div>
+
+    <!-- 본문 (PLAY 버튼이 본문 최상단에 inline으로 들어감) -->
+    <div class="viewer-body">
+      <!-- PLAY 버튼은 여기서 JS로 삽입됨 -->
+      <div id="play-inline-container"></div>
+      <div class="article-content" id="article-content" data-size="md" data-lh="normal" data-ls="normal"></div>
+    </div>
+  </div>
+
+  <!-- ══ WRITE ══ -->
+  <div id="screen-write">
+    <div class="write-top">
+      <button onclick="showScreen('index')">← BACK</button>
+    </div>
+
+    <div class="board-select-wrap">
+      <select class="board-select" id="write-board-select">
+        <option value="">게시판을 선택하세요</option>
+        <option value="sugar-barrel">SUGAR BARREL</option>
+        <option value="painkiller">PAINKILLER</option>
+        <option value="nothingness">NOTHINGNESS</option>
+      </select>
+      <div class="board-select-arrow">
+        <svg viewBox="0 0 10 6"><path d="M0 0l5 6 5-6z"/></svg>
+      </div>
+    </div>
+
+    <div class="write-epnum-row">
+      <span class="write-epnum-label en">EPISODE</span>
+      <input class="write-epnum-input en" id="write-epnum" type="number" min="1" placeholder="00" />
+    </div>
+
+    <input class="title-input" id="write-title" type="text" placeholder="제목을 입력하세요" />
+
+    <div class="body-wrap">
+      <textarea class="body-textarea" id="write-body"
+        placeholder="내용을 입력하세요"></textarea>
+    </div>
+
+    <div class="write-footer">
+      <span class="write-hint en">* Ctrl+Enter to save &nbsp;|&nbsp; YouTube URL → auto PLAY</span>
+      <button class="btn-save en" id="btn-save" onclick="saveEpisode()">SAVE</button>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<!-- ══ 전역 스크립트 ══ -->
+<script>
+  /* ─── 화면 전환 ─── */
+  function showScreen(name) {
+    document.getElementById('screen-index').style.display  = name === 'index'  ? 'flex' : 'none';
+    document.getElementById('screen-viewer').style.display = name === 'viewer' ? 'flex' : 'none';
+    document.getElementById('screen-write').style.display  = name === 'write'  ? 'flex' : 'none';
+    if (name === 'index' && window._refreshBoards) window._refreshBoards();
+    if (name !== 'viewer') stopYoutube();
+  }
+
+  function openWrite() {
+    window._editingEpId = null;
+    document.getElementById('write-board-select').value = '';
+    document.getElementById('write-epnum').value = '';
+    document.getElementById('write-title').value = '';
+    document.getElementById('write-body').value  = '';
+    showScreen('write');
+  }
+
+  /* ─── Ctrl+Enter 저장 ─── */
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      const ws = document.getElementById('screen-write');
+      if (ws && ws.style.display !== 'none') {
+        e.preventDefault();
+        saveEpisode();
+      }
+    }
+  });
+
+  /* ─── 타이포 설정 ─── */
+  function setSetting(btn) {
+    const target = btn.dataset.target;
+    const val    = btn.dataset.val;
+    document.getElementById('article-content').dataset[target] = val;
+    btn.closest('.setting-group').querySelectorAll('.setting-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    localStorage.setItem('sed-' + target, val);
+  }
+  ['size','lh','ls'].forEach(k => {
+    const v = localStorage.getItem('sed-' + k);
+    if (!v) return;
+    const ac = document.getElementById('article-content');
+    if (ac) ac.dataset[k] = v;
+    const btn = document.querySelector(`[data-target="${k}"][data-val="${v}"]`);
+    if (btn) {
+      btn.closest('.setting-group').querySelectorAll('.setting-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+  });
+
+  /* ─── YouTube 뮤직 플레이어 ─── */
+  let ytPlayer   = null;
+  let ytReady    = false;
+  let pendingPlay = false;   // API 로드 전 PLAY 요청 대기
+  window.ytVideoId = null;
+
+  // YT IFrame API 로드
+  (function() {
+    const s = document.createElement('script');
+    s.src = 'https://www.youtube.com/iframe_api';
+    document.head.appendChild(s);
+  })();
+
+  window.onYouTubeIframeAPIReady = function() {
+    ytReady = true;
+    if (pendingPlay) { pendingPlay = false; _createPlayer(); }
+  };
+
+  function extractYTId(text) {
+    // youtu.be, watch?v=, embed/, shorts/ 모두 커버
+    const m = text.match(/(?:youtu\.be\/|[?&]v=|\/embed\/|\/shorts\/)([A-Za-z0-9_-]{11})/);
+    return m ? m[1] : null;
+  }
+
+  function _createPlayer() {
+    let wrap = document.getElementById('_yt_wrap');
+    if (!wrap) {
+      wrap = document.createElement('div');
+      wrap.id = '_yt_wrap';
+      wrap.style.cssText = 'position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;overflow:hidden;bottom:0;left:0;z-index:-1;';
+      document.body.appendChild(wrap);
+    }
+    wrap.innerHTML = '<div id="_yt_el"></div>';
+
+    ytPlayer = new YT.Player('_yt_el', {
+      videoId: window.ytVideoId,
+      playerVars: {
+        autoplay: 1,
+        controls: 0,
+        playsinline: 1,
+        loop: 1,                          // 반복재생
+        playlist: window.ytVideoId        // loop 작동에 필요
+      },
+      events: {
+        onReady: function(e) { e.target.playVideo(); },
+        onStateChange: function(e) {
+          const btn = document.getElementById('btn-play');
+          if (!btn) return;
+          if (e.data === YT.PlayerState.PLAYING) {
+            btn.textContent = 'STOP'; btn.classList.add('playing');
+          } else if (e.data === YT.PlayerState.PAUSED || e.data === YT.PlayerState.ENDED) {
+            btn.textContent = 'PLAY'; btn.classList.remove('playing');
+          }
+        },
+        onError: function() {
+          const btn = document.getElementById('btn-play');
+          if (btn) { btn.textContent = 'PLAY'; btn.classList.remove('playing'); }
+        }
+      }
+    });
+  }
+
+  function togglePlay() {
+    if (!ytReady) { pendingPlay = true; return; }
+
+    if (!ytPlayer) {
+      _createPlayer();
+      return;
+    }
+    const state = ytPlayer.getPlayerState ? ytPlayer.getPlayerState() : -1;
+    if (state === YT.PlayerState.PLAYING) {
+      ytPlayer.pauseVideo();
+    } else {
+      ytPlayer.playVideo();
+    }
+  }
+
+  function stopYoutube() {
+    if (ytPlayer) {
+      try { ytPlayer.stopVideo(); ytPlayer.destroy(); } catch(e) {}
+      ytPlayer = null;
+    }
+    const wrap = document.getElementById('_yt_wrap');
+    if (wrap) wrap.innerHTML = '';
+    const btn = document.getElementById('btn-play');
+    if (btn) { btn.textContent = 'PLAY'; btn.classList.remove('playing'); }
+  }
+
+  /* ─── 위임 함수 ─── */
+  function editCurrent()      { if (window._editCurrent)  window._editCurrent(); }
+  function saveEpisode()      { if (window._saveEpisode)  window._saveEpisode(); }
+  function downloadMarkdown() { if (window._downloadMd)   window._downloadMd(); }
+</script>
+
+<!-- ══ Firebase ESM ══ -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import {
+    getFirestore, collection, getDocs, addDoc, doc, getDoc, updateDoc,
+    query, orderBy, limit, getCountFromServer
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey:            "AIzaSyBNQmyMOYE0UigsM2-9UVvUoYoOk8uPRQ8",
+    authDomain:        "sediment-44b92.firebaseapp.com",
+    projectId:         "sediment-44b92",
+    storageBucket:     "sediment-44b92.firebasestorage.app",
+    messagingSenderId: "544860724380",
+    appId:             "1:544860724380:web:a26741e03fe1a63bd26159"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  const BOARDS = [
+    { id: 'sugar-barrel', name: 'SUGAR BARREL', roman: 'I.' },
+    { id: 'painkiller',   name: 'PAINKILLER',   roman: 'II.' },
+    { id: 'nothingness',  name: 'NOTHINGNESS',  roman: 'III.' },
+  ];
+
+  let currentBoardId = null;
+  let currentEpId    = null;
+  window._editingEpId = null;
+
+  window._refreshBoards = renderIndex;
+  window._saveEpisode   = saveEpisode;
+  window._editCurrent   = editCurrent;
+  window._downloadMd    = downloadMarkdown;
+
+  showScreen('index');
+
+  /* ── 인덱스 렌더 ── */
+  async function renderIndex() {
+    const listEl = document.getElementById('board-list');
+    listEl.innerHTML = '';
+    for (const b of BOARDS) {
+      const block = document.createElement('div');
+      block.className = 'board-block';
+      block.innerHTML = `
+        <div class="board-title-row">
+          <span class="board-roman en">${b.roman}</span>
+          <span class="board-name en">${b.name}</span>
+          <span class="board-dots"></span>
+          <span class="board-count en" id="count-${b.id}">—</span>
+        </div>
+        <div class="episode-list" id="eplist-${b.id}">
+          <div class="state-msg" style="text-align:left;padding:4px 0">…</div>
+        </div>
+      `;
+      listEl.appendChild(block);
+      loadEpList(b.id);
+    }
+  }
+
+  async function loadEpList(boardId) {
+    const el      = document.getElementById('eplist-' + boardId);
+    const countEl = document.getElementById('count-' + boardId);
+
+    // 공통 렌더 함수
+    function renderDocs(docs) {
+      // 게시글 수 표시
+      if (countEl) countEl.textContent = docs.length || '0';
+
+      if (!docs.length) {
+        el.innerHTML = '<div class="state-msg" style="text-align:left;padding:4px 0">—</div>';
+        return;
+      }
+      el.innerHTML = '';
+      docs.forEach(d => {
+        const ep  = d.data();
+        const num = ep.epNum != null ? String(ep.epNum).padStart(2, '0') : '—';
+        const a   = document.createElement('a');
+        a.className = 'episode-item';
+        a.href = '#';
+        a.addEventListener('click', e => { e.preventDefault(); openEpisode(boardId, d.id); });
+        a.innerHTML = `<span class="ep-label en">EPISODE ${num}.&nbsp;</span>${ep.title ?? ''}`;
+        el.appendChild(a);
+      });
+    }
+
+    try {
+      const snap = await getDocs(
+        query(collection(db, 'boards', boardId, 'episodes'), orderBy('epNum', 'desc'), limit(50))
+      );
+      renderDocs(snap.docs);
+    } catch(err) {
+      // 인덱스 없을 때 fallback
+      try {
+        const snap2 = await getDocs(collection(db, 'boards', boardId, 'episodes'));
+        const sorted = snap2.docs.sort((a,b) => (b.data().epNum||0) - (a.data().epNum||0));
+        renderDocs(sorted);
+      } catch(e2) {
+        if (countEl) countEl.textContent = '?';
+        el.innerHTML = `<div class="state-msg" style="text-align:left;padding:4px 0;opacity:.5">연결 오류</div>`;
+        console.error('Firestore:', e2);
+      }
+    }
+  }
+
+  /* ── 에피소드 열기 ── */
+  async function openEpisode(boardId, epId) {
+    currentBoardId = boardId;
+    currentEpId    = epId;
+    showScreen('viewer');
+    stopYoutube();
+
+    const board = BOARDS.find(b => b.id === boardId);
+    const snap  = await getDoc(doc(db, 'boards', boardId, 'episodes', epId));
+    if (!snap.exists()) return;
+    const ep  = snap.data();
+    const num = ep.epNum != null ? String(ep.epNum).padStart(2,'0') : '';
+
+    document.getElementById('viewer-breadcrumb').textContent =
+      `${board?.name ?? boardId} > EPISODE ${num}. ${ep.title ?? ''}`;
+
+    // YouTube 링크 추출
+    const rawBody = ep.body ?? '';
+    const vid = extractYTId(rawBody);
+    window.ytVideoId = vid;
+
+    // PLAY 버튼 삽입 (본문 상단)
+    const playContainer = document.getElementById('play-inline-container');
+    if (vid) {
+      playContainer.innerHTML = `
+        <div class="play-inline-wrap">
+          <button id="btn-play" onclick="togglePlay()">PLAY</button>
+        </div>`;
+    } else {
+      playContainer.innerHTML = '';
+    }
+
+    // 본문 렌더
+    // URL 줄 제거: YouTube 링크 라인을 본문에서 숨김
+    const ytLineRe = /^.*(?:youtu\.be\/|youtube\.com\/).*$/gm;
+    const cleanBody = rawBody.replace(ytLineRe, '').replace(/\n{3,}/g, '\n\n').trim();
+
+    const ac = document.getElementById('article-content');
+    ac.innerHTML = '';
+
+    // 줄바꿈 처리:
+    //   빈 줄(\n\n) → 단락 구분
+    //   단일 줄바꿈(\n) → <br> (줄바꿈 그대로 유지)
+    const blocks = cleanBody.split(/\n\n+/);
+    blocks.forEach((block, bi) => {
+      if (!block.trim()) return;
+      const p = document.createElement('p');
+      if (bi === 0) p.classList.add('drop-cap');
+
+      // 단락 안의 단일 \n을 <br>로
+      const lines = block.split('\n');
+      lines.forEach((line, li) => {
+        if (li > 0) p.appendChild(document.createElement('br'));
+        p.appendChild(document.createTextNode(line));
+      });
+      ac.appendChild(p);
+    });
+
+    document.querySelector('.viewer-body').scrollTop = 0;
+  }
+
+  /* ── 편집 ── */
+  async function editCurrent() {
+    if (!currentBoardId || !currentEpId) return;
+    const snap = await getDoc(doc(db, 'boards', currentBoardId, 'episodes', currentEpId));
+    if (!snap.exists()) return;
+    const ep = snap.data();
+    document.getElementById('write-board-select').value = currentBoardId;
+    document.getElementById('write-epnum').value  = ep.epNum ?? '';
+    document.getElementById('write-title').value  = ep.title ?? '';
+    document.getElementById('write-body').value   = ep.body  ?? '';
+    window._editingEpId = currentEpId;
+    showScreen('write');
+  }
+
+  /* ── 저장 ── */
+  async function saveEpisode() {
+    const boardId = document.getElementById('write-board-select').value;
+    const epNum   = parseInt(document.getElementById('write-epnum').value) || null;
+    const title   = document.getElementById('write-title').value.trim();
+    const body    = document.getElementById('write-body').value;
+    if (!boardId) { alert('게시판을 선택해주세요.'); return; }
+    if (!title)   { alert('제목을 입력해주세요.'); return; }
+
+    const btn = document.getElementById('btn-save');
+    btn.textContent = 'SAVING…'; btn.disabled = true;
+    try {
+      const epData = { title, body, epNum, updatedAt: new Date().toISOString() };
+      const eid = window._editingEpId;
+      if (eid) {
+        await updateDoc(doc(db, 'boards', boardId, 'episodes', eid), epData);
+        window._editingEpId = null;
+      } else {
+        await addDoc(collection(db, 'boards', boardId, 'episodes'), epData);
+      }
+      showScreen('index');
+    } catch(e) {
+      alert('저장 실패: ' + e.message);
+    } finally {
+      btn.textContent = 'SAVE'; btn.disabled = false;
+    }
+  }
+
+  /* ── Markdown 다운로드 ── */
+  async function downloadMarkdown() {
+    const lines = ['# SEDIMENT\n'];
+    for (const b of BOARDS) {
+      lines.push(`\n---\n\n## ${b.name}\n`);
+      try {
+        const snap = await getDocs(collection(db, 'boards', b.id, 'episodes'));
+        snap.docs
+          .sort((a,c) => (a.data().epNum||0) - (c.data().epNum||0))
+          .forEach(d => {
+            const ep  = d.data();
+            const num = ep.epNum != null ? String(ep.epNum).padStart(2,'0') : '??';
+            lines.push(`\n### EPISODE ${num}. ${ep.title ?? ''}\n\n${ep.body ?? ''}\n`);
+          });
+      } catch(e) { /* skip */ }
+    }
+    const blob = new Blob([lines.join('\n')], { type: 'text/markdown;charset=utf-8' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = 'sediment.md'; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  renderIndex();
+</script>
+</body>
+</html>
