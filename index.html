@@ -204,6 +204,7 @@
       z-index: 100;
       background: var(--bg);
       padding: 20px var(--pad-x) 0;
+      border-bottom: 1px solid var(--ink-15);
     }
     .viewer-breadcrumb {
       font-family: var(--font-en);
@@ -231,13 +232,12 @@
     }
     .viewer-actions button:hover { opacity: .5; }
 
-    /* 타이포 컨트롤 */
+    /* 타이포 컨트롤 — topbar 안에 포함되어 함께 sticky */
     .viewer-settings {
       display: flex;
       flex-wrap: wrap;
       gap: 10px 16px;
-      padding: 0 var(--pad-x) 12px;
-      border-bottom: 1px solid var(--ink-15);
+      padding: 10px 0 12px;
     }
     .setting-group { display: flex; align-items: center; gap: 5px; }
     .setting-label {
@@ -479,6 +479,36 @@
     .btn-save:hover { opacity: .75; }
     .btn-save:disabled { opacity: .4; cursor: not-allowed; }
 
+    /* ── TOP 버튼 ── */
+    #btn-top {
+      position: fixed;
+      bottom: 32px;
+      right: calc(50% - var(--max-w) / 2 + 20px);
+      font-family: var(--font-en);
+      font-size: 9px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--ink);
+      background: var(--bg);
+      border: 1px solid var(--ink-30);
+      padding: 7px 12px;
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s;
+      z-index: 200;
+    }
+    #btn-top.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    #btn-top:hover { border-color: var(--ink); }
+
+    /* max-w보다 좁은 화면에서는 그냥 우하단 고정 */
+    @media (max-width: 600px) {
+      #btn-top { right: 20px; }
+    }
+
     /* ── 에피소드 하단 네비게이션 ── */
     .ep-nav {
       display: flex;
@@ -650,27 +680,26 @@
           <button onclick="editCurrent()">EDIT</button>
         </div>
       </div>
-    </div>
-
-    <!-- 타이포 컨트롤 -->
-    <div class="viewer-settings">
-      <div class="setting-group">
-        <span class="setting-label en">Size</span>
-        <button class="setting-btn en" data-target="size" data-val="sm" onclick="setSetting(this)">S</button>
-        <button class="setting-btn en active" data-target="size" data-val="md" onclick="setSetting(this)">M</button>
-        <button class="setting-btn en" data-target="size" data-val="lg" onclick="setSetting(this)">L</button>
-      </div>
-      <div class="setting-group">
-        <span class="setting-label en">Line</span>
-        <button class="setting-btn en" data-target="lh" data-val="compact" onclick="setSetting(this)">↕</button>
-        <button class="setting-btn en active" data-target="lh" data-val="normal" onclick="setSetting(this)">↕↕</button>
-        <button class="setting-btn en" data-target="lh" data-val="loose" onclick="setSetting(this)">↕↕↕</button>
-      </div>
-      <div class="setting-group">
-        <span class="setting-label en">Kern</span>
-        <button class="setting-btn en" data-target="ls" data-val="tight" onclick="setSetting(this)">←→</button>
-        <button class="setting-btn en active" data-target="ls" data-val="normal" onclick="setSetting(this)">← →</button>
-        <button class="setting-btn en" data-target="ls" data-val="wide" onclick="setSetting(this)">←  →</button>
+      <!-- 타이포 컨트롤 — topbar에 포함되어 함께 sticky 고정 -->
+      <div class="viewer-settings">
+        <div class="setting-group">
+          <span class="setting-label en">Size</span>
+          <button class="setting-btn en" data-target="size" data-val="sm" onclick="setSetting(this)">S</button>
+          <button class="setting-btn en active" data-target="size" data-val="md" onclick="setSetting(this)">M</button>
+          <button class="setting-btn en" data-target="size" data-val="lg" onclick="setSetting(this)">L</button>
+        </div>
+        <div class="setting-group">
+          <span class="setting-label en">Line</span>
+          <button class="setting-btn en" data-target="lh" data-val="compact" onclick="setSetting(this)">↕</button>
+          <button class="setting-btn en active" data-target="lh" data-val="normal" onclick="setSetting(this)">↕↕</button>
+          <button class="setting-btn en" data-target="lh" data-val="loose" onclick="setSetting(this)">↕↕↕</button>
+        </div>
+        <div class="setting-group">
+          <span class="setting-label en">Kern</span>
+          <button class="setting-btn en" data-target="ls" data-val="tight" onclick="setSetting(this)">←→</button>
+          <button class="setting-btn en active" data-target="ls" data-val="normal" onclick="setSetting(this)">← →</button>
+          <button class="setting-btn en" data-target="ls" data-val="wide" onclick="setSetting(this)">←  →</button>
+        </div>
       </div>
     </div>
 
@@ -729,6 +758,9 @@
       <button class="btn-save en" id="btn-save" onclick="saveEpisode()">SAVE</button>
     </div>
   </div>
+
+<!-- TOP 버튼 — 뷰어 스크롤 시 표시 -->
+<button id="btn-top" class="en" onclick="window.scrollTo({top:0,behavior:'smooth'})">TOP</button>
 
 </div><!-- /app -->
 
@@ -871,6 +903,19 @@
     const btn = document.getElementById('btn-play');
     if (btn) { btn.textContent = 'PLAY'; btn.classList.remove('playing'); }
   }
+
+  /* ─── TOP 버튼 스크롤 감지 ─── */
+  window.addEventListener('scroll', function() {
+    const topBtn  = document.getElementById('btn-top');
+    const viewer  = document.getElementById('screen-viewer');
+    if (!topBtn) return;
+    const inViewer = viewer && viewer.style.display !== 'none';
+    if (inViewer && window.scrollY > 300) {
+      topBtn.classList.add('visible');
+    } else {
+      topBtn.classList.remove('visible');
+    }
+  }, { passive: true });
 
   /* ─── 위임 함수 ─── */
   function editCurrent()      { if (window._editCurrent)  window._editCurrent(); }
