@@ -1645,33 +1645,33 @@
      TIMELINE — Firebase 로직
   ════════════════════════════ */
 
-  // Firestore 구조: timelines/{timelineName}/items/{itemId}
-  //   item: { order: Number, title: String, desc: String, createdAt: String }
+  // Firestore 구조:
+  //   timeline-names/{name}  → { name, createdAt }   ← 타임라인 이름 목록
+  //   timelines/{name}/items/{itemId} → { order, title, desc, updatedAt }
 
-  let currentTlName = null;   // 현재 보고 있는 타임라인 이름
-  let allTlNames    = [];     // 존재하는 타임라인 이름 목록
+  let currentTlName = null;
+  let allTlNames    = [];
   window._editingTlId   = null;
   window._editingTlName = null;
 
-  /* ── 정렬 키: order 기준, 없으면 0 ── */
   function tlSortKey(item) { return item.order ?? 0; }
 
   /* ── 타임라인 전체 새로고침 ── */
   async function refreshTimeline() {
-    // 모든 타임라인 이름 수집
     try {
-      const snap = await getDocs(collection(db, 'timelines'));
+      // timeline-names 컬렉션에서 이름 목록 읽기
+      const snap = await getDocs(collection(db, 'timeline-names'));
       allTlNames = snap.docs.map(d => d.id).sort();
     } catch(e) { allTlNames = []; }
 
     renderTlTabs();
 
-    // 첫 탭 자동 선택
     if (!currentTlName && allTlNames.length > 0) currentTlName = allTlNames[0];
-    if (currentTlName) renderTlItems(currentTlName);
-    else {
+    if (currentTlName) {
+      renderTlItems(currentTlName);
+    } else {
       document.getElementById('tl-items').innerHTML =
-        '<div class="state-msg" style="padding-left:28px">타임라인이 없습니다</div>';
+        '<div class="state-msg" style="padding-left:28px">타임라인이 없습니다. + 버튼으로 추가하세요.</div>';
     }
   }
   window._refreshTimeline = refreshTimeline;
@@ -1702,10 +1702,10 @@
       const snap = await getDocs(collection(db, 'timelines', tlName, 'items'));
       const items = snap.docs
         .map(d => ({ id: d.id, ...d.data() }))
-        .sort((a, b) => tlSortKey(b) - tlSortKey(a));   // 내림차순
+        .sort((a, b) => tlSortKey(b) - tlSortKey(a));
 
       if (!items.length) {
-        el.innerHTML = '<div class="state-msg" style="padding-left:28px">타임라인이 없습니다</div>';
+        el.innerHTML = '<div class="state-msg" style="padding-left:28px">항목이 없습니다.</div>';
         return;
       }
       el.innerHTML = '';
@@ -1731,17 +1731,15 @@
     }
   }
 
-  /* ── HTML 이스케이프 ── */
   function escHtml(s) {
     return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
-  /* ── 셀렉트 채우기 (write 폼 열 때) ── */
+  /* ── write 폼 셀렉트 채우기 ── */
   async function populateTlSelect(selectedName) {
     const sel = document.getElementById('tl-name-select');
-    // 항상 최신 목록으로
     try {
-      const snap = await getDocs(collection(db, 'timelines'));
+      const snap = await getDocs(collection(db, 'timeline-names'));
       allTlNames = snap.docs.map(d => d.id).sort();
     } catch(e) {}
 
@@ -1756,15 +1754,15 @@
     newOpt.value = '__new__'; newOpt.textContent = '+ 새 타임라인 만들기';
     sel.appendChild(newOpt);
 
-    // 편집 모드면 기존 데이터 채우기
+    // 편집 모드: 기존 데이터 채우기
     if (window._editingTlId && window._editingTlName) {
       try {
         const snap = await getDoc(doc(db, 'timelines', window._editingTlName, 'items', window._editingTlId));
         if (snap.exists()) {
           const d = snap.data();
-          document.getElementById('tl-order-input').value   = d.order  ?? '';
-          document.getElementById('tl-title-input').value   = d.title  ?? '';
-          document.getElementById('tl-body-textarea').value = d.desc   ?? '';
+          document.getElementById('tl-order-input').value   = d.order ?? '';
+          document.getElementById('tl-title-input').value   = d.title ?? '';
+          document.getElementById('tl-body-textarea').value = d.desc  ?? '';
         }
       } catch(e) {}
     }
@@ -1780,18 +1778,24 @@
     const title   = document.getElementById('tl-title-input').value.trim();
     const desc    = document.getElementById('tl-body-textarea').value;
 
-    if (!tlName)  { alert('타임라인을 선택하거나 이름을 입력해주세요.'); return; }
-    if (!title)   { alert('제목을 입력해주세요.'); return; }
+    if (!tlName) { alert('타임라인을 선택하거나 이름을 입력해주세요.'); return; }
+    if (!title)  { alert('제목을 입력해주세요.'); return; }
 
     const btn = document.getElementById('tl-btn-save');
     btn.textContent = 'SAVING…'; btn.disabled = true;
     try {
-      const data = { order, title, desc, updatedAt: new Date().toISOString() };
-      const eid = window._editingTlId;
+      const data  = { order, title, desc, updatedAt: new Date().toISOString() };
+      const eid   = window._editingTlId;
       const ename = window._editingTlName;
 
+      // 타임라인 이름을 timeline-names에 등록 (없으면 생성)
+      await updateDoc(doc(db, 'timeline-names', tlName), { name: tlName }).catch(async () => {
+        // 문서 없으면 setDoc으로 생성
+        const { setDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+        await setDoc(doc(db, 'timeline-names', tlName), { name: tlName, createdAt: new Date().toISOString() });
+      });
+
       if (eid && ename) {
-        // 타임라인 이름이 바뀐 경우: 구 항목 삭제 후 새로 추가
         if (ename !== tlName) {
           await deleteDoc(doc(db, 'timelines', ename, 'items', eid));
           await addDoc(collection(db, 'timelines', tlName, 'items'), data);
@@ -1801,6 +1805,7 @@
       } else {
         await addDoc(collection(db, 'timelines', tlName, 'items'), data);
       }
+
       window._editingTlId = null;
       window._editingTlName = null;
       currentTlName = tlName;
@@ -1813,7 +1818,7 @@
   }
   window._saveTlItem = saveTlItem;
 
-  /* ── 삭제 ── */
+  /* ── 아이템 삭제 ── */
   async function deleteTlItem(itemId, tlName) {
     if (!confirm('이 항목을 삭제할까요?')) return;
     try {
