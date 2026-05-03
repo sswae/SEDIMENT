@@ -681,8 +681,8 @@
     /* 점 */
     .tl-dot {
       flex-shrink: 0;
-      width: 11px;
-      height: 11px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       border: 1.5px solid var(--ink);
       background: var(--bg);
@@ -1110,7 +1110,7 @@
     </div>
 
     <div class="tl-header">
-      <span class="tl-header-label en">Chronicle</span>
+      <span class="tl-header-label en">adventure</span>
       <div class="tl-header-title en">TIMELINE</div>
     </div>
 
@@ -1156,12 +1156,12 @@
     </div>
 
     <!-- 제목 -->
-    <input class="tl-title-input" id="tl-title-input" type="text" placeholder="제목을 입력하세요" />
+    <input class="tl-title-input" id="tl-title-input" type="text" placeholder="사건개요" />
 
     <!-- 내용 -->
     <div class="tl-body-wrap">
       <textarea class="tl-body-textarea" id="tl-body-textarea"
-        placeholder="내용을 입력하세요&#10;Ctrl+Enter 로 저장"></textarea>
+        placeholder="내용을 입력하세요"></textarea>
     </div>
 
     <div class="tl-write-footer">
@@ -1671,7 +1671,7 @@
     if (currentTlName) renderTlItems(currentTlName);
     else {
       document.getElementById('tl-items').innerHTML =
-        '<div class="state-msg" style="padding-left:28px">타임라인이 없습니다. + 버튼으로 추가하세요.</div>';
+        '<div class="state-msg" style="padding-left:28px">타임라인이 없습니다</div>';
     }
   }
   window._refreshTimeline = refreshTimeline;
@@ -1705,7 +1705,7 @@
         .sort((a, b) => tlSortKey(b) - tlSortKey(a));   // 내림차순
 
       if (!items.length) {
-        el.innerHTML = '<div class="state-msg" style="padding-left:28px">항목이 없습니다.</div>';
+        el.innerHTML = '<div class="state-msg" style="padding-left:28px">타임라인이 없습니다</div>';
         return;
       }
       el.innerHTML = '';
