@@ -1156,12 +1156,12 @@
     </div>
 
     <!-- 제목 -->
-    <input class="tl-title-input" id="tl-title-input" type="text" placeholder="제목을 입력하세요" />
+    <input class="tl-title-input" id="tl-title-input" type="text" placeholder="사건요약" />
 
     <!-- 내용 -->
     <div class="tl-body-wrap">
       <textarea class="tl-body-textarea" id="tl-body-textarea"
-        placeholder="내용을 입력하세요&#10;Ctrl+Enter 로 저장"></textarea>
+        placeholder="내용을 입력하세요"></textarea>
     </div>
 
     <div class="tl-write-footer">
@@ -1671,7 +1671,7 @@
     if (currentTlName) renderTlItems(currentTlName);
     else {
       document.getElementById('tl-items').innerHTML =
-        '<div class="state-msg" style="padding-left:28px">타임라인이 없습니다. + 버튼으로 추가하세요.</div>';
+        '<div class="state-msg" style="padding-left:28px">타임라인이 없습니다</div>';
     }
   }
   window._refreshTimeline = refreshTimeline;
