@@ -629,6 +629,14 @@
       scrollbar-width: none;
     }
     .tl-tabs::-webkit-scrollbar { display: none; }
+    /* 탭 하나 = 이름 버튼 + 삭제 버튼 묶음 */
+    .tl-tab-wrap {
+      display: flex;
+      align-items: center;
+      border-right: 1px solid var(--ink-15);
+      flex-shrink: 0;
+    }
+    .tl-tab-wrap:last-child { border-right: none; }
     .tl-tab {
       font-family: var(--font-en);
       font-size: 9.5px;
@@ -637,19 +645,28 @@
       color: var(--ink-60);
       background: none;
       border: none;
-      border-right: 1px solid var(--ink-15);
-      padding: 9px 14px;
+      padding: 9px 10px 9px 14px;
       cursor: pointer;
       white-space: nowrap;
-      flex-shrink: 0;
       transition: color .15s, background .15s;
     }
-    .tl-tab:last-child { border-right: none; }
-    .tl-tab.active {
-      color: var(--ink);
-      background: rgba(87,97,81,.07);
+    .tl-tab.active { color: var(--ink); background: rgba(87,97,81,.07); }
+    .tl-tab:hover  { color: var(--ink); }
+    /* 탭 안의 삭제 × 버튼 */
+    .tl-tab-del {
+      font-family: var(--font-en);
+      font-size: 11px;
+      color: var(--ink-30);
+      background: none;
+      border: none;
+      padding: 9px 10px 9px 2px;
+      cursor: pointer;
+      line-height: 1;
+      transition: color .15s;
+      flex-shrink: 0;
     }
-    .tl-tab:hover { color: var(--ink); }
+    .tl-tab-del:hover { color: #8b6060; }
+    .tl-tab-wrap.active .tl-tab-del { color: var(--ink-60); }
 
     /* ── 세로 타임라인 ── */
     .tl-body {
@@ -1680,17 +1697,45 @@
   function renderTlTabs() {
     const tabsEl = document.getElementById('tl-tabs');
     tabsEl.innerHTML = '';
-    allTlNames.forEach(name => {
+
+    // SUGAR BARREL 맨 앞 고정, 나머지 알파벳 정렬
+    const PINNED = 'sugar barrel';
+    const sorted = [...allTlNames].sort((a, b) => {
+      if (a.toLowerCase() === PINNED) return -1;
+      if (b.toLowerCase() === PINNED) return  1;
+      return a.localeCompare(b);
+    });
+
+    sorted.forEach(name => {
+      const wrap = document.createElement('div');
+      wrap.className = 'tl-tab-wrap' + (name === currentTlName ? ' active' : '');
+
+      // 이름 탭 버튼
       const btn = document.createElement('button');
       btn.className = 'tl-tab' + (name === currentTlName ? ' active' : '');
       btn.textContent = name;
       btn.addEventListener('click', () => {
         currentTlName = name;
         document.querySelectorAll('.tl-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tl-tab-wrap').forEach(t => t.classList.remove('active'));
         btn.classList.add('active');
+        wrap.classList.add('active');
         renderTlItems(name);
       });
-      tabsEl.appendChild(btn);
+
+      // 삭제(×) 버튼
+      const del = document.createElement('button');
+      del.className = 'tl-tab-del';
+      del.textContent = '×';
+      del.title = `"${name}" 타임라인 삭제`;
+      del.addEventListener('click', (e) => {
+        e.stopPropagation();
+        deleteTlBoard(name);
+      });
+
+      wrap.appendChild(btn);
+      wrap.appendChild(del);
+      tabsEl.appendChild(wrap);
     });
   }
 
@@ -1817,6 +1862,36 @@
     }
   }
   window._saveTlItem = saveTlItem;
+
+  /* ── 타임라인(게시판) 전체 삭제 ── */
+  async function deleteTlBoard(tlName) {
+    if (!confirm(`"${tlName}" 타임라인 전체를 삭제할까요?\n안의 항목이 모두 삭제되며 되돌릴 수 없습니다.`)) return;
+    try {
+      // 1) 모든 items 삭제
+      const itemsSnap = await getDocs(collection(db, 'timelines', tlName, 'items'));
+      for (const d of itemsSnap.docs) {
+        await deleteDoc(doc(db, 'timelines', tlName, 'items', d.id));
+      }
+      // 2) timeline-names 에서 제거
+      await deleteDoc(doc(db, 'timeline-names', tlName));
+
+      // 3) 상태 초기화 후 새로고침
+      if (currentTlName === tlName) currentTlName = null;
+      allTlNames = allTlNames.filter(n => n !== tlName);
+      renderTlTabs();
+      if (currentTlName) {
+        renderTlItems(currentTlName);
+      } else if (allTlNames.length > 0) {
+        currentTlName = allTlNames[0];
+        renderTlTabs();
+        renderTlItems(currentTlName);
+      } else {
+        document.getElementById('tl-items').innerHTML =
+          '<div class="state-msg" style="padding-left:28px">타임라인이 없습니다. + 버튼으로 추가하세요.</div>';
+      }
+    } catch(e) { alert('삭제 실패: ' + e.message); }
+  }
+  window.deleteTlBoard = deleteTlBoard;
 
   /* ── 아이템 삭제 ── */
   async function deleteTlItem(itemId, tlName) {
