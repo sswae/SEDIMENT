@@ -553,6 +553,343 @@
     }
     .ep-nav-spacer { flex: 1; }
 
+    /* ════════════════════════════
+       TIMELINE
+    ════════════════════════════ */
+    #screen-timeline {
+      display: none;
+      flex-direction: column;
+      min-height: 100dvh;
+      padding: 0 var(--pad-x);
+    }
+
+    /* ── 타임라인 상단 바 ── */
+    .tl-topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding-top: 32px;
+      padding-bottom: 6px;
+    }
+    .tl-topbar-left { display: flex; flex-direction: column; gap: 2px; }
+    .tl-topbar-left button, .tl-topbar-right button {
+      font-family: var(--font-en);
+      font-size: 10px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--ink);
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      line-height: 1.75;
+      text-align: left;
+      transition: opacity .15s;
+    }
+    .tl-topbar-left button:hover, .tl-topbar-right button:hover { opacity: .5; }
+    .tl-add-btn {
+      font-family: var(--font-en);
+      font-size: 24px;
+      color: var(--ink);
+      background: none;
+      border: none;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0;
+      transition: opacity .15s;
+    }
+    .tl-add-btn:hover { opacity: .5; }
+
+    /* ── 타임라인 헤더 ── */
+    .tl-header { text-align: center; padding: 36px 0 20px; }
+    .tl-header-label {
+      font-family: var(--font-en);
+      font-size: 10px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--ink-60);
+      display: block;
+      margin-bottom: 14px;
+    }
+    .tl-header-title {
+      font-family: var(--font-en);
+      font-size: 32px;
+      font-style: italic;
+      font-weight: 500;
+      letter-spacing: .04em;
+    }
+
+    /* ── 타임라인 선택 탭 ── */
+    .tl-tabs {
+      display: flex;
+      gap: 0;
+      border-top: 1px solid var(--ink);
+      border-bottom: 1px solid var(--ink-30);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .tl-tabs::-webkit-scrollbar { display: none; }
+    .tl-tab {
+      font-family: var(--font-en);
+      font-size: 9.5px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--ink-60);
+      background: none;
+      border: none;
+      border-right: 1px solid var(--ink-15);
+      padding: 9px 14px;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: color .15s, background .15s;
+    }
+    .tl-tab:last-child { border-right: none; }
+    .tl-tab.active {
+      color: var(--ink);
+      background: rgba(87,97,81,.07);
+    }
+    .tl-tab:hover { color: var(--ink); }
+
+    /* ── 세로 타임라인 ── */
+    .tl-body {
+      flex: 1;
+      padding: 32px 0 80px;
+      position: relative;
+    }
+
+    /* 세로 중심선 */
+    .tl-line {
+      position: absolute;
+      left: 11px;
+      top: 32px;
+      bottom: 80px;
+      width: 1px;
+      background: var(--ink-30);
+    }
+
+    .tl-items { display: flex; flex-direction: column; gap: 0; }
+
+    .tl-item {
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+      padding-bottom: 28px;
+      position: relative;
+    }
+
+    /* 점 */
+    .tl-dot {
+      flex-shrink: 0;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      border: 1.5px solid var(--ink);
+      background: var(--bg);
+      margin-top: 5px;
+      position: relative;
+      z-index: 1;
+      transition: background .15s;
+    }
+    .tl-item:hover .tl-dot { background: var(--ink); }
+
+    /* 내용 */
+    .tl-content { flex: 1; min-width: 0; }
+    .tl-num {
+      font-family: var(--font-en);
+      font-size: 9.5px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--ink-60);
+      margin-bottom: 4px;
+    }
+    .tl-title {
+      font-family: var(--font-ko);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 6px;
+      line-height: 1.5;
+    }
+    .tl-desc {
+      font-family: var(--font-ko);
+      font-size: 12.5px;
+      color: var(--ink-60);
+      line-height: 1.8;
+      white-space: pre-wrap;
+      word-break: keep-all;
+    }
+    .tl-item-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .tl-item-btn {
+      font-family: var(--font-en);
+      font-size: 9px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--ink-60);
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      transition: color .15s;
+    }
+    .tl-item-btn:hover { color: var(--ink); }
+    .tl-item-btn.del:hover { color: #8b6060; }
+
+    /* ── 타임라인 WRITE 폼 ── */
+    #screen-tl-write {
+      display: none;
+      flex-direction: column;
+      height: 100dvh;
+      padding: 0 var(--pad-x);
+    }
+    .tl-write-top { padding: 28px 0 18px; flex-shrink: 0; }
+    .tl-write-top button {
+      font-family: var(--font-en);
+      font-size: 10px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--ink);
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+    .tl-write-top button:hover { opacity: .5; }
+
+    /* 타임라인 이름 선택 */
+    .tl-name-select-wrap {
+      position: relative;
+      border-bottom: 1px solid var(--ink);
+      margin-bottom: 18px;
+      flex-shrink: 0;
+    }
+    .tl-name-select {
+      width: 100%;
+      appearance: none;
+      background: transparent;
+      border: none;
+      font-family: var(--font-ko);
+      font-size: 12px;
+      color: var(--ink-60);
+      padding: 10px 36px 10px 0;
+      cursor: pointer;
+      outline: none;
+    }
+    .tl-name-select option { color: var(--ink); background: var(--bg); }
+
+    /* 타임라인 이름 직접 입력 */
+    .tl-newname-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-shrink: 0;
+    }
+    .tl-newname-label {
+      font-family: var(--font-en);
+      font-size: 10px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--ink-60);
+      flex-shrink: 0;
+    }
+    .tl-newname-input {
+      flex: 1;
+      font-family: var(--font-en);
+      font-size: 13px;
+      color: var(--ink);
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--ink-30);
+      outline: none;
+      padding: 4px 0;
+    }
+    .tl-newname-input::placeholder { color: var(--ink-30); }
+
+    .tl-order-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      flex-shrink: 0;
+    }
+    .tl-order-label {
+      font-family: var(--font-en);
+      font-size: 10px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--ink-60);
+    }
+    .tl-order-input {
+      font-family: var(--font-en);
+      font-size: 13px;
+      color: var(--ink);
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--ink-30);
+      outline: none;
+      width: 60px;
+      padding: 4px 0;
+      text-align: center;
+    }
+
+    .tl-title-input {
+      font-family: var(--font-ko);
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--ink);
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--ink-30);
+      outline: none;
+      width: 100%;
+      padding: 8px 0 12px;
+      margin-bottom: 16px;
+      flex-shrink: 0;
+    }
+    .tl-title-input::placeholder { color: var(--ink-30); }
+
+    .tl-body-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--ink-30);
+      padding: 14px 16px;
+      min-height: 0;
+    }
+    .tl-body-textarea {
+      flex: 1;
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-family: var(--font-ko);
+      font-size: 14px;
+      line-height: 2;
+      color: var(--ink);
+      resize: none;
+    }
+    .tl-body-textarea::placeholder { color: var(--ink-30); }
+
+    .tl-write-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0 20px;
+      flex-shrink: 0;
+    }
+    .tl-write-hint {
+      font-family: var(--font-en);
+      font-size: 9px;
+      letter-spacing: .07em;
+      color: var(--ink-60);
+    }
+
     @media (min-width: 600px) {
       :root { --pad-x: 48px; }
       .contents-title { font-size: 46px; }
@@ -649,6 +986,7 @@
         <a href="https://docs.google.com/document/d/1U_QFTRwyx-KA8zYOakjqiPAi7Mp_gi1r6cm946Fk-wo/edit?usp=sharing"
            target="_blank" rel="noopener">DOCS</a>
         <a href="https://www.perplexity.ai/" target="_blank" rel="noopener">GHOSTWRITER</a>
+        <a href="#" onclick="showScreen('timeline'); return false;">TIMELINE</a>
         <a href="#" onclick="downloadMarkdown(); return false;">MARKDOWN</a>
       </div>
       <button class="btn-add" onclick="openWrite()">+</button>
@@ -762,16 +1100,92 @@
 <!-- TOP 버튼 — 뷰어 스크롤 시 표시 -->
 <button id="btn-top" class="en" onclick="window.scrollTo({top:0,behavior:'smooth'})">TOP</button>
 
+  <!-- ══ TIMELINE ══ -->
+  <div id="screen-timeline">
+    <div class="tl-topbar">
+      <div class="tl-topbar-left">
+        <button onclick="showScreen('index')">INDEX</button>
+      </div>
+      <button class="tl-add-btn" onclick="openTlWrite()">+</button>
+    </div>
+
+    <div class="tl-header">
+      <span class="tl-header-label en">Chronicle</span>
+      <div class="tl-header-title en">TIMELINE</div>
+    </div>
+
+    <!-- 타임라인 탭 (타임라인 이름별 전환) -->
+    <div class="tl-tabs" id="tl-tabs"></div>
+
+    <!-- 세로 타임라인 본체 -->
+    <div class="tl-body">
+      <div class="tl-line"></div>
+      <div class="tl-items" id="tl-items">
+        <div class="state-msg" style="padding-left:28px">Loading…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TL-WRITE ══ -->
+  <div id="screen-tl-write">
+    <div class="tl-write-top">
+      <button onclick="showScreen('timeline')">← BACK</button>
+    </div>
+
+    <!-- 타임라인 선택 or 신규 -->
+    <div class="tl-name-select-wrap">
+      <select class="tl-name-select" id="tl-name-select" onchange="onTlNameSelect()">
+        <option value="">타임라인을 선택하세요</option>
+        <option value="__new__">+ 새 타임라인 만들기</option>
+      </select>
+      <div class="board-select-arrow">
+        <svg viewBox="0 0 10 6"><path d="M0 0l5 6 5-6z"/></svg>
+      </div>
+    </div>
+
+    <!-- 새 타임라인 이름 입력 (선택시 노출) -->
+    <div class="tl-newname-row" id="tl-newname-row" style="display:none">
+      <span class="tl-newname-label en">Name</span>
+      <input class="tl-newname-input en" id="tl-newname-input" type="text" placeholder="타임라인 이름" />
+    </div>
+
+    <!-- 순서 번호 -->
+    <div class="tl-order-row">
+      <span class="tl-order-label en">No.</span>
+      <input class="tl-order-input en" id="tl-order-input" type="number" min="1" placeholder="00" />
+    </div>
+
+    <!-- 제목 -->
+    <input class="tl-title-input" id="tl-title-input" type="text" placeholder="제목을 입력하세요" />
+
+    <!-- 내용 -->
+    <div class="tl-body-wrap">
+      <textarea class="tl-body-textarea" id="tl-body-textarea"
+        placeholder="내용을 입력하세요&#10;Ctrl+Enter 로 저장"></textarea>
+    </div>
+
+    <div class="tl-write-footer">
+      <span class="tl-write-hint en">* Ctrl+Enter to save</span>
+      <button class="btn-save en" id="tl-btn-save" onclick="saveTlItem()">SAVE</button>
+    </div>
+  </div>
+
 </div><!-- /app -->
 
 <!-- ══ 전역 스크립트 ══ -->
 <script>
   /* ─── 화면 전환 ─── */
   function showScreen(name) {
-    document.getElementById('screen-index').style.display  = name === 'index'  ? 'flex' : 'none';
-    document.getElementById('screen-viewer').style.display = name === 'viewer' ? 'flex' : 'none';
-    document.getElementById('screen-write').style.display  = name === 'write'  ? 'flex' : 'none';
-    if (name === 'index' && window._refreshBoards) window._refreshBoards();
+    const screens = ['index','viewer','write','timeline','tl-write'];
+    screens.forEach(s => {
+      const el = document.getElementById('screen-' + s);
+      if (el) el.style.display = 'none';
+    });
+    const target = document.getElementById('screen-' + name);
+    if (target) target.style.display = 'flex';
+
+    if (name === 'index'    && window._refreshBoards) window._refreshBoards();
+    if (name === 'timeline' && window._refreshTimeline) window._refreshTimeline();
     if (name !== 'viewer') stopYoutube();
   }
 
@@ -784,14 +1198,34 @@
     showScreen('write');
   }
 
+  function openTlWrite(editId, tlName) {
+    window._editingTlId   = editId   ?? null;
+    window._editingTlName = tlName   ?? null;
+    document.getElementById('tl-order-input').value  = '';
+    document.getElementById('tl-title-input').value  = '';
+    document.getElementById('tl-body-textarea').value = '';
+    document.getElementById('tl-newname-row').style.display = 'none';
+    document.getElementById('tl-newname-input').value = '';
+    if (window._populateTlSelect) window._populateTlSelect(tlName ?? '');
+    showScreen('tl-write');
+  }
+
+  function onTlNameSelect() {
+    const sel = document.getElementById('tl-name-select');
+    const row = document.getElementById('tl-newname-row');
+    row.style.display = sel.value === '__new__' ? 'flex' : 'none';
+  }
+
+  function saveTlItem()    { if (window._saveTlItem)    window._saveTlItem(); }
+
   /* ─── Ctrl+Enter 저장 ─── */
   document.addEventListener('keydown', function(e) {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-      const ws = document.getElementById('screen-write');
-      if (ws && ws.style.display !== 'none') {
-        e.preventDefault();
-        saveEpisode();
-      }
+      e.preventDefault();
+      const ws  = document.getElementById('screen-write');
+      const tls = document.getElementById('screen-tl-write');
+      if (ws  && ws.style.display  !== 'none') saveEpisode();
+      if (tls && tls.style.display !== 'none') saveTlItem();
     }
   });
 
@@ -1206,6 +1640,188 @@
   }
 
   renderIndex();
+
+  /* ════════════════════════════
+     TIMELINE — Firebase 로직
+  ════════════════════════════ */
+
+  // Firestore 구조: timelines/{timelineName}/items/{itemId}
+  //   item: { order: Number, title: String, desc: String, createdAt: String }
+
+  let currentTlName = null;   // 현재 보고 있는 타임라인 이름
+  let allTlNames    = [];     // 존재하는 타임라인 이름 목록
+  window._editingTlId   = null;
+  window._editingTlName = null;
+
+  /* ── 정렬 키: order 기준, 없으면 0 ── */
+  function tlSortKey(item) { return item.order ?? 0; }
+
+  /* ── 타임라인 전체 새로고침 ── */
+  async function refreshTimeline() {
+    // 모든 타임라인 이름 수집
+    try {
+      const snap = await getDocs(collection(db, 'timelines'));
+      allTlNames = snap.docs.map(d => d.id).sort();
+    } catch(e) { allTlNames = []; }
+
+    renderTlTabs();
+
+    // 첫 탭 자동 선택
+    if (!currentTlName && allTlNames.length > 0) currentTlName = allTlNames[0];
+    if (currentTlName) renderTlItems(currentTlName);
+    else {
+      document.getElementById('tl-items').innerHTML =
+        '<div class="state-msg" style="padding-left:28px">타임라인이 없습니다. + 버튼으로 추가하세요.</div>';
+    }
+  }
+  window._refreshTimeline = refreshTimeline;
+
+  /* ── 탭 렌더 ── */
+  function renderTlTabs() {
+    const tabsEl = document.getElementById('tl-tabs');
+    tabsEl.innerHTML = '';
+    allTlNames.forEach(name => {
+      const btn = document.createElement('button');
+      btn.className = 'tl-tab' + (name === currentTlName ? ' active' : '');
+      btn.textContent = name;
+      btn.addEventListener('click', () => {
+        currentTlName = name;
+        document.querySelectorAll('.tl-tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+        renderTlItems(name);
+      });
+      tabsEl.appendChild(btn);
+    });
+  }
+
+  /* ── 아이템 렌더 (번호 내림차순) ── */
+  async function renderTlItems(tlName) {
+    const el = document.getElementById('tl-items');
+    el.innerHTML = '<div class="state-msg" style="padding-left:28px">…</div>';
+    try {
+      const snap = await getDocs(collection(db, 'timelines', tlName, 'items'));
+      const items = snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => tlSortKey(b) - tlSortKey(a));   // 내림차순
+
+      if (!items.length) {
+        el.innerHTML = '<div class="state-msg" style="padding-left:28px">항목이 없습니다.</div>';
+        return;
+      }
+      el.innerHTML = '';
+      items.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'tl-item';
+        const num = item.order != null ? String(item.order).padStart(2,'0') : '—';
+        div.innerHTML = `
+          <div class="tl-dot"></div>
+          <div class="tl-content">
+            <div class="tl-num en">${num}.</div>
+            <div class="tl-title">${escHtml(item.title ?? '')}</div>
+            ${item.desc ? `<div class="tl-desc">${escHtml(item.desc)}</div>` : ''}
+            <div class="tl-item-actions">
+              <button class="tl-item-btn en" onclick="openTlWrite('${item.id}','${tlName}')">EDIT</button>
+              <button class="tl-item-btn del en" onclick="deleteTlItem('${item.id}','${tlName}')">DELETE</button>
+            </div>
+          </div>`;
+        el.appendChild(div);
+      });
+    } catch(e) {
+      el.innerHTML = `<div class="state-msg" style="padding-left:28px;opacity:.5">오류: ${e.message}</div>`;
+    }
+  }
+
+  /* ── HTML 이스케이프 ── */
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  /* ── 셀렉트 채우기 (write 폼 열 때) ── */
+  async function populateTlSelect(selectedName) {
+    const sel = document.getElementById('tl-name-select');
+    // 항상 최신 목록으로
+    try {
+      const snap = await getDocs(collection(db, 'timelines'));
+      allTlNames = snap.docs.map(d => d.id).sort();
+    } catch(e) {}
+
+    sel.innerHTML = '<option value="">타임라인을 선택하세요</option>';
+    allTlNames.forEach(n => {
+      const o = document.createElement('option');
+      o.value = n; o.textContent = n;
+      if (n === selectedName) o.selected = true;
+      sel.appendChild(o);
+    });
+    const newOpt = document.createElement('option');
+    newOpt.value = '__new__'; newOpt.textContent = '+ 새 타임라인 만들기';
+    sel.appendChild(newOpt);
+
+    // 편집 모드면 기존 데이터 채우기
+    if (window._editingTlId && window._editingTlName) {
+      try {
+        const snap = await getDoc(doc(db, 'timelines', window._editingTlName, 'items', window._editingTlId));
+        if (snap.exists()) {
+          const d = snap.data();
+          document.getElementById('tl-order-input').value   = d.order  ?? '';
+          document.getElementById('tl-title-input').value   = d.title  ?? '';
+          document.getElementById('tl-body-textarea').value = d.desc   ?? '';
+        }
+      } catch(e) {}
+    }
+  }
+  window._populateTlSelect = populateTlSelect;
+
+  /* ── 저장 ── */
+  async function saveTlItem() {
+    const sel     = document.getElementById('tl-name-select');
+    const newName = document.getElementById('tl-newname-input').value.trim();
+    const tlName  = sel.value === '__new__' ? newName : sel.value;
+    const order   = parseInt(document.getElementById('tl-order-input').value) || null;
+    const title   = document.getElementById('tl-title-input').value.trim();
+    const desc    = document.getElementById('tl-body-textarea').value;
+
+    if (!tlName)  { alert('타임라인을 선택하거나 이름을 입력해주세요.'); return; }
+    if (!title)   { alert('제목을 입력해주세요.'); return; }
+
+    const btn = document.getElementById('tl-btn-save');
+    btn.textContent = 'SAVING…'; btn.disabled = true;
+    try {
+      const data = { order, title, desc, updatedAt: new Date().toISOString() };
+      const eid = window._editingTlId;
+      const ename = window._editingTlName;
+
+      if (eid && ename) {
+        // 타임라인 이름이 바뀐 경우: 구 항목 삭제 후 새로 추가
+        if (ename !== tlName) {
+          await deleteDoc(doc(db, 'timelines', ename, 'items', eid));
+          await addDoc(collection(db, 'timelines', tlName, 'items'), data);
+        } else {
+          await updateDoc(doc(db, 'timelines', tlName, 'items', eid), data);
+        }
+      } else {
+        await addDoc(collection(db, 'timelines', tlName, 'items'), data);
+      }
+      window._editingTlId = null;
+      window._editingTlName = null;
+      currentTlName = tlName;
+      showScreen('timeline');
+    } catch(e) {
+      alert('저장 실패: ' + e.message);
+    } finally {
+      btn.textContent = 'SAVE'; btn.disabled = false;
+    }
+  }
+  window._saveTlItem = saveTlItem;
+
+  /* ── 삭제 ── */
+  async function deleteTlItem(itemId, tlName) {
+    if (!confirm('이 항목을 삭제할까요?')) return;
+    try {
+      await deleteDoc(doc(db, 'timelines', tlName, 'items', itemId));
+      renderTlItems(tlName);
+    } catch(e) { alert('삭제 실패: ' + e.message); }
+  }
+  window.deleteTlItem = deleteTlItem;
 
   Promise.all([renderIndex()]).then(() => {
   const loader = document.getElementById('loading-screen');
