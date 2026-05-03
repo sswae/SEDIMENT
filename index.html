@@ -1676,14 +1676,21 @@
   /* ── 타임라인 전체 새로고침 ── */
   async function refreshTimeline() {
     try {
-      // timeline-names 컬렉션에서 이름 목록 읽기
       const snap = await getDocs(collection(db, 'timeline-names'));
       allTlNames = snap.docs.map(d => d.id).sort();
     } catch(e) { allTlNames = []; }
 
     renderTlTabs();
 
-    if (!currentTlName && allTlNames.length > 0) currentTlName = allTlNames[0];
+    // 탭과 동일한 정렬 기준으로 첫 항목 선택 (SUGAR BARREL 고정 맨 앞)
+    const PINNED = 'sugar barrel';
+    const sortedNames = [...allTlNames].sort((a, b) => {
+      if (a.toLowerCase() === PINNED) return -1;
+      if (b.toLowerCase() === PINNED) return  1;
+      return a.localeCompare(b);
+    });
+
+    if (!currentTlName && sortedNames.length > 0) currentTlName = sortedNames[0];
     if (currentTlName) {
       renderTlItems(currentTlName);
     } else {
